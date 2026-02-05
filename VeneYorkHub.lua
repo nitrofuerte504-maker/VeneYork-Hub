@@ -1,40 +1,75 @@
--- Script de Prueba para Veneyork - Paso 1: Activar Decorar
+-- ============================================
+-- VENEYORK AUTO BUILDER - PRUEBA 1: ABRIR DECORAR
+-- Repositorio Oficial: https://github.com/nitrofuerte504-maker/VeneYork-Hub
+-- ============================================
+
 local Players = game:GetService("Players")
 local player = Players.LocalPlayer
 
--- 1. DEFINIR la ruta exacta del botón (LA QUE ENCONTRAMOS)
-local rutaBotonDecorar = player.PlayerGui.CustomTopBar.House.Selection.Decorate
+-- Función para mostrar mensajes claros
+local function Notificar(mensaje)
+    print("[VeneYork Hub] " .. mensaje)
+    -- Intenta mostrar notificación en pantalla si es posible
+    if pcall(function()
+        game:GetService("StarterGui"):SetCore("SendNotification", {
+            Title = "VeneYork Hub",
+            Text = mensaje,
+            Duration = 5
+        })
+    end) then
+        -- Notificación enviada con éxito
+    end
+end
 
--- 2. INTENTAR encontrar el botón y activarlo
-local exito = false
-local mensaje = ""
+-- Verificar que estamos listos
+if not player then
+    Notificar("❌ ERROR: No se encontró al jugador.")
+    return
+end
 
--- Usamos 'pcall' para capturar errores sin que crashee el script
-local funciono, errorMsg = pcall(function()
-    local boton = rutaBotonDecorar
-    -- Método 1: Intentar activar el evento común de botones
-    boton:FireEvent("Activated")
-    -- Método 2: Alternativa común
-    boton:FireEvent("MouseClick")
-    
-    exito = true
-    mensaje = "✅ Comando 'Decorar' enviado. Revisa si se abrió el menú de objetos."
+Notificar("🚀 Iniciando VeneYork Hub...")
+
+-- 1. BUSCAR EL BOTÓN 'DECORAR' DE FORMA SEGURA
+local botonDecorar
+local ok, errorMsg = pcall(function()
+    botonDecorar = player:WaitForChild("PlayerGui"):WaitForChild("CustomTopBar"):WaitForChild("House"):WaitForChild("Selection"):WaitForChild("Decorate")
 end)
 
--- 3. MOSTRAR RESULTADO
-if not funciono then
-    -- Si 'pcall' capturó un error
-    mensaje = "❌ Error al intentar activar el botón: " .. tostring(errorMsg)
-elseif not exito then
-    mensaje = "⚠️ El script se ejecutó, pero no se pudo confirmar la activación."
+if not ok or not botonDecorar then
+    Notificar("❌ No se pudo encontrar el botón 'Decorar'.")
+    Notificar("   Asegúrate de estar en tu parcela y que el menú 'Mi casa' sea visible.")
+    return
 end
 
-print("=== RESULTADO PRUEBA ===")
-print(mensaje)
-print("========================")
+Notificar("✅ Botón 'Decorar' encontrado. Activando...")
 
--- Opcional: Notificación en pantalla si tienes una librería
-if exito then
-    -- Si usas JmodsLib o similar, puedes agregar una notificación aquí
-    -- Ejemplo: JmodsLib:Notify({Title="Prueba", Content=mensaje, Duration=5})
+-- 2. INTENTAR DIFERENTES MÉTODOS DE ACTIVACIÓN
+local activado = false
+local metodos = {"Activated", "MouseButton1Click", "MouseClick"}
+
+for _, nombreEvento in ipairs(metodos) do
+    local eventoOk = pcall(function()
+        botonDecorar:FireEvent(nombreEvento)
+        activado = true
+        Notificar("   Evento '" .. nombreEvento .. "' ejecutado.")
+    end)
+    if activado then break end
 end
+
+-- 3. RESULTADO FINAL
+if activado then
+    Notificar("🎉 ¡MENÚ DE DECORACIÓN ACTIVADO!")
+    Notificar("   El menú con muebles y objetos debería estar visible.")
+else
+    Notificar("⚠️  El botón no respondió a los métodos comunes.")
+    Notificar("   Próximo paso: Investigar el evento exacto.")
+end
+
+-- 4. INFORMACIÓN PARA DIAGNÓSTICO
+print("\n" .. string.rep("=", 50))
+print("DIAGNÓSTICO COMPLETO")
+print("Nombre del Jugador: " .. player.Name)
+print("Ruta usada: PlayerGui.CustomTopBar.House.Selection.Decorate")
+print(string.rep("=", 50))
+
+return "VeneYork Hub - Prueba 1 completada."
