@@ -31,14 +31,41 @@ local function cargarModulo(nombre)
 end
 
 -- Iniciar sistema
-local Menu = cargarModulo("menu")
-local Builder = cargarModulo("builder")
+print("🔍 Cargando módulos...")
+local Menu, MenuError = cargarModulo("menu")
+local Builder, BuilderError = cargarModulo("builder")
+
+print("Menu cargado:", Menu and "✅" or "❌ " .. tostring(MenuError))
+print("Builder cargado:", Builder and "✅" or "❌ " .. tostring(BuilderError))
 
 if Menu and Builder then
-    print("✅ Módulos cargados")
-    Menu.iniciar(Builder)
+    print("✅ Todos los módulos cargados")
+    
+    -- Verificar que Menu tenga la función 'iniciar'
+    if type(Menu.iniciar) == "function" then
+        print("✅ Llamando a Menu.iniciar()...")
+        local exito, errorMsg = pcall(function()
+            Menu.iniciar(Builder)
+        end)
+        
+        if not exito then
+            print("❌ Error al iniciar menú:", errorMsg)
+        end
+    else
+        print("❌ Menu no tiene función 'iniciar'")
+        print("Funciones disponibles en Menu:", next(Menu) and "Sí" or "No")
+    end
 else
-    print("❌ Error cargando módulos")
+    print("❌ No se pudieron cargar todos los módulos")
+    
+    -- Si al menos Builder cargó, intentar usarlo directamente
+    if Builder then
+        print("🔄 Intentando activar Decorar directamente...")
+        if Builder.activarDecorar then
+            local ok, msg = pcall(Builder.activarDecorar)
+            print("Resultado:", ok and "✅ " .. msg or "❌ " .. msg)
+        end
+    end
 end
 
 return "Veneyork Builder v" .. VERSION
