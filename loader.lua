@@ -7,7 +7,7 @@ print("🚀 Iniciando Veneyork Builder v" .. VERSION)
 
 -- Función para cargar un módulo
 local function cargarModulo(nombre)
-    local baseURL = "https://raw.githubusercontent.com/nitrofuertes504-maker/VeneYork-Hub/main/"
+    local baseURL = "https://raw.githubusercontent.com/nitrofuerte504-maker/VeneYork-Hub/main/"
     local modulos = {
         menu = "modules/menu.lua",
         builder = "modules/builder.lua"
