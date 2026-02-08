@@ -1,51 +1,87 @@
--- Módulo: Builder (Lógica principal)
-local Builder = {}
+-- Módulo: Menu (Interfaz simple y funcional)
+local Menu = {}
 
-function Builder.activarDecorar()
-    local player = game:GetService("Players").LocalPlayer
+-- Función PRINCIPAL que debe existir
+function Menu.iniciar(Builder)
+    print("🎮 Menu.iniciar() llamado")
     
-    -- Intentar encontrar el botón
-    local boton = player.PlayerGui:FindFirstChild("CustomTopBar")
-    if boton then
-        boton = boton:FindFirstChild("House")
-        if boton then
-            boton = boton:FindFirstChild("Selection")
-            if boton then
-                boton = boton:FindFirstChild("Decorate")
-            end
-        end
+    -- Verificar que Builder tiene las funciones necesarias
+    if not Builder or not Builder.activarDecorar then
+        print("❌ Builder no tiene función activarDecorar")
+        return false
     end
     
-    if not boton then
-        return false, "No se encontró el botón 'Decorar'"
+    print("✅ Builder verificado")
+    
+    -- Función para notificaciones
+    local function notificar(titulo, texto)
+        print("[Menu] " .. titulo .. ": " .. texto)
+        pcall(function()
+            game:GetService("StarterGui"):SetCore("SendNotification", {
+                Title = titulo,
+                Text = texto,
+                Duration = 5
+            })
+        end)
     end
     
-    -- Intentar diferentes métodos de activación
-    local metodos = {"Activated", "MouseButton1Click", "TouchTap"}
-    
-    for _, metodo in ipairs(metodos) do
-        local exito = pcall(function()
-            boton:FireEvent(metodo)
+    -- Función para abrir menú Decorar
+    local function abrirDecorar()
+        print("🖱️ Ejecutando abrirDecorar()")
+        notificar("Veneyork Builder", "Abriendo menú Decorar...")
+        
+        local exito, mensaje = pcall(function()
+            return Builder.activarDecorar()
         end)
         
         if exito then
-            return true, "Menú activado (método: " .. metodo .. ")"
+            notificar("✅ Éxito", mensaje or "Menú activado")
+        else
+            notificar("❌ Error", "Error: " .. tostring(mensaje))
         end
     end
     
-    return false, "El botón no respondió a ningún método"
+    -- Asignar tecla (INSERT)
+    local UIS = game:GetService("UserInputService")
+    local conexion
+    conexion = UIS.InputBegan:Connect(function(input, gameProcessed)
+        if gameProcessed then return end
+        
+        if input.KeyCode == Enum.KeyCode.Insert then
+            print("⌨️ Tecla INSERT presionada")
+            abrirDecorar()
+        end
+    end)
+    
+    -- Configurar notificación inicial
+    notificar("✅ Veneyork Builder", "Sistema activado. Presiona INSERT (tecla Ins)")
+    print("✅ Sistema listo. Presiona INSERT para abrir menú Decorar.")
+    
+    -- Guardar referencia para desconectar si es necesario
+    Menu._conexionTecla = conexion
+    
+    return true
 end
 
--- Función para escanear una casa (futura implementación)
-function Builder.escanearCasa(casaModel)
-    print("📡 Función de escaneo - En desarrollo")
-    return {}
+-- Función para cerrar/limpiar
+function Menu.cerrar()
+    if Menu._conexionTecla then
+        Menu._conexionTecla:Disconnect()
+        Menu._conexionTecla = nil
+    end
+    print("🔒 Menu cerrado")
 end
 
--- Función para construir (futura implementación)
-function Builder.construir(plano, posicion)
-    print("🏗️ Función de construcción - En desarrollo")
-    return false, "En desarrollo"
+-- Función de diagnóstico
+function Menu.diagnostico()
+    return {
+        version = "1.0",
+        funciones = {
+            "iniciar",
+            "cerrar", 
+            "diagnostico"
+        }
+    }
 end
 
-return Builder
+return Menu
