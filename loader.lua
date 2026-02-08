@@ -32,40 +32,55 @@ end
 
 -- Iniciar sistema
 print("🔍 Cargando módulos...")
-local Menu, MenuError = cargarModulo("menu")
-local Builder, BuilderError = cargarModulo("builder")
+local Menu = cargarModulo("menu")
+local Builder = cargarModulo("builder")
 
-print("Menu cargado:", Menu and "✅" or "❌ " .. tostring(MenuError))
-print("Builder cargado:", Builder and "✅" or "❌ " .. tostring(BuilderError))
-
-if Menu and Builder then
-    print("✅ Todos los módulos cargados")
-    
-    -- Verificar que Menu tenga la función 'iniciar'
-    if type(Menu.iniciar) == "function" then
-        print("✅ Llamando a Menu.iniciar()...")
-        local exito, errorMsg = pcall(function()
-            Menu.iniciar(Builder)
-        end)
-        
-        if not exito then
-            print("❌ Error al iniciar menú:", errorMsg)
+if not Menu then
+    print("❌ ERROR CRÍTICO: Menu NO se cargó")
+    -- Cargar un Menu de emergencia
+    Menu = {
+        iniciar = function(builder)
+            print("🔄 Usando Menu de emergencia")
+            if builder and builder.activarDecorar then
+                builder.activarDecorar()
+            end
+            return true
         end
-    else
-        print("❌ Menu no tiene función 'iniciar'")
-        print("Funciones disponibles en Menu:", next(Menu) and "Sí" or "No")
+    }
+end
+
+if not Builder then
+    print("❌ ERROR CRÍTICO: Builder NO se cargó")
+    return "Error: Builder no disponible"
+end
+
+print("✅ Módulos cargados. Iniciando sistema...")
+
+-- Verificar que Menu tenga la función 'iniciar'
+if type(Menu.iniciar) ~= "function" then
+    print("⚠️ Menu no tiene 'iniciar', pero tiene estas funciones:")
+    for key, value in pairs(Menu) do
+        print("   - " .. key .. ": " .. type(value))
+    end
+    
+    -- Intentar usar cualquier función que parezca de inicio
+    for key, value in pairs(Menu) do
+        if type(value) == "function" and (key:lower():find("init") or key:lower():find("start")) then
+            print("🔄 Intentando con función: " .. key)
+            local ok, err = pcall(value, Builder)
+            print("Resultado:", ok and "✅ Éxito" or "❌ Error: " .. tostring(err))
+            break
+        end
     end
 else
-    print("❌ No se pudieron cargar todos los módulos")
-    
-    -- Si al menos Builder cargó, intentar usarlo directamente
-    if Builder then
-        print("🔄 Intentando activar Decorar directamente...")
-        if Builder.activarDecorar then
-            local ok, msg = pcall(Builder.activarDecorar)
-            print("Resultado:", ok and "✅ " .. msg or "❌ " .. msg)
-        end
+    print("✅ Llamando a Menu.iniciar(Builder)...")
+    local ok, err = pcall(Menu.iniciar, Builder)
+    if not ok then
+        print("❌ Error en Menu.iniciar:", err)
+    else
+        print("✅ Sistema iniciado correctamente")
     end
 end
 
-return "Veneyork Builder v" .. VERSION
+print("🎯 Veneyork Builder listo")
+return "Veneyork Builder v" .. VERSION .. " - Completado"
