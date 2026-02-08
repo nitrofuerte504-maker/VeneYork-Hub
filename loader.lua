@@ -9,7 +9,7 @@ local player = Players.LocalPlayer
 
 -- Configuración
 local CONFIG = {
-    REPO_OWNER = "nitrofuertes504-maker",
+    REPO_OWNER = "nitrofuerte504-maker",
     REPO_NAME = "VeneYork-Hub",
     MODULES = {
         menu = "modules/menu.lua",
