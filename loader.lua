@@ -102,15 +102,18 @@ local function crearVentanaLogin()
     local gui = Instance.new("ScreenGui")
     gui.Name = "VeneyorkLogin"
     gui.ResetOnSpawn = false
+
     
-    -- Fondo
-    local fondo = Instance.new("Frame")
-    fondo.Name = "Fondo"
-    fondo.Size = UDim2.new(1, 0, 1, 0)
-    fondo.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
-    fondo.BackgroundTransparency = 0.5
-    fondo.BorderSizePixel = 0
-    fondo.Parent = gui
+    -- Fondo (ahora es un botón invisible para detectar clics)
+local fondo = Instance.new("TextButton")
+fondo.Name = "Fondo"
+fondo.Size = UDim2.new(1, 0, 1, 0)
+fondo.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+fondo.BackgroundTransparency = 0.5
+fondo.BorderSizePixel = 0
+fondo.Text = ""  -- Texto vacío
+fondo.AutoButtonColor = false  -- No cambiar color al pasar el mouse
+fondo.Parent = gui
     
     -- Ventana principal
     local ventana = Instance.new("Frame")
